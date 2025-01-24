@@ -14,4 +14,12 @@ public class Schedule {
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 
+    public Schedule(String writer, String todo, String password){
+        this.writer = writer;
+        this.todo = todo;
+        this.password = password;
+        this.createdAt = LocalDateTime.now();
+        this.updatedAt = LocalDateTime.now();
+    }
+
 }
