@@ -40,8 +40,6 @@ public class ScheduleController {
     ){
         ScheduleResponseDto scheduleResponseDto = scheduleService.findByUpdatedAtRangeAndWriter(updatedAt, writer);
 
-        logger.info("Fetching schedules for date={} and writer={}", updatedAt, writer);
-
         return ResponseEntity.ok(scheduleResponseDto);
     }
 }

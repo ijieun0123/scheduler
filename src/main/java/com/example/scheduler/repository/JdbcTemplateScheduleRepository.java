@@ -2,6 +2,8 @@ package com.example.scheduler.repository;
 
 import com.example.scheduler.dto.ScheduleResponseDto;
 import com.example.scheduler.entity.Schedule;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
@@ -16,6 +18,8 @@ import java.util.Optional;
 
 @Repository
 public class JdbcTemplateScheduleRepository implements ScheduleRepository {
+
+    private static final Logger logger = LoggerFactory.getLogger(JdbcTemplateScheduleRepository.class);
 
     private final JdbcTemplate jdbcTemplate;
 

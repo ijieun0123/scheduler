@@ -4,7 +4,11 @@ import com.example.scheduler.dto.ScheduleRequestDto;
 import com.example.scheduler.dto.ScheduleResponseDto;
 import com.example.scheduler.entity.Schedule;
 import com.example.scheduler.repository.ScheduleRepository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -12,6 +16,8 @@ import java.time.LocalTime;
 
 @Service
 public class ScheduleServiceImpl implements ScheduleService {
+
+    private static final Logger logger = LoggerFactory.getLogger(ScheduleServiceImpl.class);
 
     private final ScheduleRepository scheduleRepository;
 
@@ -32,7 +38,9 @@ public class ScheduleServiceImpl implements ScheduleService {
         LocalDateTime endOfDay = updatedAt.atTime(LocalTime.MAX);
 
         Schedule schedule = scheduleRepository.findByUpdatedAtRangeAndWriter(startOfDay, endOfDay, writer)
-                .orElseThrow(() -> new RuntimeException("Schedule not found"));
+                .orElseThrow(() -> {
+                    return new ResponseStatusException(HttpStatus.NOT_FOUND, "Schedule not found");
+                });
 
         return new ScheduleResponseDto(
                 schedule.getId(),
