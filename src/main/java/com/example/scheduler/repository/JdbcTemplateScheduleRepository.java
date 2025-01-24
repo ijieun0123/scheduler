@@ -33,6 +33,8 @@ public class JdbcTemplateScheduleRepository implements ScheduleRepository {
         parameters.put("writer", schedule.getWriter());
         parameters.put("todo", schedule.getTodo());
         parameters.put("password", schedule.getPassword());
+        parameters.put("createdAt", schedule.getCreatedAt());
+        parameters.put("updatedAt", schedule.getUpdatedAt());
 
         Number key = jdbcInsert.executeAndReturnKey(new MapSqlParameterSource(parameters));
 
