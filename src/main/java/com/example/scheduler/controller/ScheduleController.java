@@ -11,6 +11,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/schedule")
@@ -34,12 +35,12 @@ public class ScheduleController {
 
     // 스케줄 전체 조회
     @GetMapping
-    public ResponseEntity<ScheduleResponseDto> findByUpdatedAtRangeAndWriter(
+    public ResponseEntity<List<ScheduleResponseDto>> findByUpdatedAtRangeAndWriter(
         @RequestParam("updatedAt") @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate updatedAt,
         @RequestParam("writer") String writer
     ){
-        ScheduleResponseDto scheduleResponseDto = scheduleService.findByUpdatedAtRangeAndWriter(updatedAt, writer);
+        List<ScheduleResponseDto> scheduleResponseDtos = scheduleService.findByUpdatedAtRangeAndWriter(updatedAt, writer);
 
-        return ResponseEntity.ok(scheduleResponseDto);
+        return ResponseEntity.ok(scheduleResponseDtos);
     }
 }

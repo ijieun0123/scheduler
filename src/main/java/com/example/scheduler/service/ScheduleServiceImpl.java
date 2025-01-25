@@ -13,6 +13,9 @@ import org.springframework.web.server.ResponseStatusException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.util.Comparator;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class ScheduleServiceImpl implements ScheduleService {
@@ -33,21 +36,23 @@ public class ScheduleServiceImpl implements ScheduleService {
     }
 
     @Override
-    public ScheduleResponseDto findByUpdatedAtRangeAndWriter(LocalDate updatedAt, String writer) {
+    public List<ScheduleResponseDto> findByUpdatedAtRangeAndWriter(LocalDate updatedAt, String writer) {
         LocalDateTime startOfDay = updatedAt.atStartOfDay();
         LocalDateTime endOfDay = updatedAt.atTime(LocalTime.MAX);
 
-        Schedule schedule = scheduleRepository.findByUpdatedAtRangeAndWriter(startOfDay, endOfDay, writer)
-                .orElseThrow(() -> {
-                    return new ResponseStatusException(HttpStatus.NOT_FOUND, "Schedule not found");
-                });
+        List<Schedule> schedules = scheduleRepository.findByUpdatedAtRangeAndWriter(startOfDay, endOfDay, writer);
 
-        return new ScheduleResponseDto(
-                schedule.getId(),
-                schedule.getWriter(),
-                schedule.getTodo(),
-                schedule.getCreatedAt(),
-                schedule.getUpdatedAt()
-        );
+        if(schedules.isEmpty()) throw new ResponseStatusException(HttpStatus.NOT_FOUND, "schedules not found");
+
+        return schedules.stream()
+                .sorted(Comparator.comparing(Schedule::getUpdatedAt).reversed())
+                .map(schedule -> new ScheduleResponseDto(
+                        schedule.getId(),
+                        schedule.getWriter(),
+                        schedule.getTodo(),
+                        schedule.getCreatedAt(),
+                        schedule.getUpdatedAt()
+                ))
+                .collect(Collectors.toList());
     }
 }

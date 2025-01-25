@@ -4,11 +4,12 @@ import com.example.scheduler.dto.ScheduleRequestDto;
 import com.example.scheduler.dto.ScheduleResponseDto;
 
 import java.time.LocalDate;
+import java.util.List;
 
 public interface ScheduleService {
 
     ScheduleResponseDto saveSchedule(ScheduleRequestDto dto);
 
-    ScheduleResponseDto findByUpdatedAtRangeAndWriter(LocalDate updatedAt, String writer);
+    List<ScheduleResponseDto> findByUpdatedAtRangeAndWriter(LocalDate updatedAt, String writer);
 
 }
