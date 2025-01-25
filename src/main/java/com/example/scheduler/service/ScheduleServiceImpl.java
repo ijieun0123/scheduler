@@ -63,4 +63,29 @@ public class ScheduleServiceImpl implements ScheduleService {
 
         return new ScheduleResponseDto(schedule);
     }
+
+    @Override
+    public ScheduleResponseDto updateSchedule(Long id, String password, String todo, String writer) {
+
+        String storedPassword = scheduleRepository.findScheduleByIdOrElseThrow(id).getPassword();
+
+        if(!password.equals(storedPassword)){
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "The password is wrong.");
+        }
+
+        if(todo == null || writer == null){
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "The todo and writer are required values.");
+        }
+
+        int updateRow = scheduleRepository.updateSchedule(id, password, todo, writer);
+
+        if(updateRow == 0){
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Does not exist id = " + id);
+        }
+
+        Schedule schedule = scheduleRepository.findScheduleByIdOrElseThrow(id);
+
+        return new ScheduleResponseDto(schedule);
+    }
+
 }

@@ -50,4 +50,14 @@ public class ScheduleController {
 
         return new ResponseEntity<>(scheduleService.findScheduleById(id), HttpStatus.OK);
     }
+
+    // 스케줄 단건 수정
+    @PatchMapping("/{id}")
+    public ResponseEntity<ScheduleResponseDto> updateSchedule(
+            @PathVariable Long id,
+            @RequestBody ScheduleRequestDto dto
+    ){
+        return new ResponseEntity<>(scheduleService.updateSchedule(id, dto.getPassword(), dto.getTodo(), dto.getWriter()), HttpStatus.OK);
+    }
+
 }

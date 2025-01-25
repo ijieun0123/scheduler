@@ -16,4 +16,6 @@ public interface ScheduleRepository {
     Optional<Schedule> findScheduleById(Long id);
 
     Schedule findScheduleByIdOrElseThrow(Long id);
+
+    int updateSchedule(Long id, String password, String todo, String writer);
 }

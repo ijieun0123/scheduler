@@ -87,6 +87,15 @@ public class JdbcTemplateScheduleRepository implements ScheduleRepository {
         return result.stream().findAny().orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Does not exists id = " + id));
     }
 
+    @Override
+    public int updateSchedule(Long id, String password, String todo, String writer) {
+        String sql = "update schedule SET todo = ?, writer = ?, updatedAt = NOW() where id = ?";
+
+        int updateRow = jdbcTemplate.update(sql, todo, writer, id);
+
+        return updateRow;
+    }
+
     private RowMapper<Schedule> scheduleRowMapperV2(){
         return new RowMapper<Schedule>() {
             @Override
@@ -102,5 +111,4 @@ public class JdbcTemplateScheduleRepository implements ScheduleRepository {
             }
         };
     }
-
 }
