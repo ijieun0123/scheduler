@@ -43,4 +43,11 @@ public class ScheduleController {
 
         return ResponseEntity.ok(scheduleResponseDtos);
     }
+
+    // 스케줄 단건 조회
+    @GetMapping("/{id}")
+    public ResponseEntity<ScheduleResponseDto> findScheduleById(@PathVariable Long id){
+
+        return new ResponseEntity<>(scheduleService.findScheduleById(id), HttpStatus.OK);
+    }
 }

@@ -55,4 +55,12 @@ public class ScheduleServiceImpl implements ScheduleService {
                 ))
                 .collect(Collectors.toList());
     }
+
+    @Override
+    public ScheduleResponseDto findScheduleById(Long id) {
+
+        Schedule schedule = scheduleRepository.findScheduleByIdOrElseThrow(id);
+
+        return new ScheduleResponseDto(schedule);
+    }
 }

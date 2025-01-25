@@ -12,4 +12,6 @@ public interface ScheduleService {
 
     List<ScheduleResponseDto> findByUpdatedAtRangeAndWriter(LocalDate updatedAt, String writer);
 
+    ScheduleResponseDto findScheduleById(Long id);
+
 }

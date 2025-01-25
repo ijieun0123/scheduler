@@ -5,6 +5,7 @@ import com.example.scheduler.entity.Schedule;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
 public interface ScheduleRepository {
 
@@ -12,4 +13,7 @@ public interface ScheduleRepository {
 
     List<Schedule> findByUpdatedAtRangeAndWriter(LocalDateTime startOfDay, LocalDateTime endOfDay, String writer);
 
+    Optional<Schedule> findScheduleById(Long id);
+
+    Schedule findScheduleByIdOrElseThrow(Long id);
 }
