@@ -54,17 +54,17 @@ public class JdbcTemplateScheduleRepository implements ScheduleRepository {
     }
 
     @Override
-    public List<Schedule> findByUpdatedAtRangeAndWriter(LocalDateTime startOfDay, LocalDateTime endOfDay, String writer) {
-        String sql = "SELECT * FROM schedule WHERE updatedAt BETWEEN ? AND ? AND writer = ?";
+    public List<Schedule> findByUpdatedAtRangeAndWriter(LocalDateTime startOfDay, LocalDateTime endOfDay, Long userId) {
+        String sql = "SELECT * FROM schedule WHERE updated_at BETWEEN ? AND ? AND user_id = ?";
 
-        return jdbcTemplate.query(sql, new Object[]{startOfDay, endOfDay, writer}, (rs, rowNum) -> {
+        return jdbcTemplate.query(sql, new Object[]{startOfDay, endOfDay, userId}, (rs, rowNum) -> {
             return new Schedule(
                     rs.getLong("id"),
-                    rs.getLong("writer"),
+                    rs.getLong("user_id"),
                     rs.getString("todo"),
                     rs.getString("password"),
-                    rs.getTimestamp("createdAt").toLocalDateTime(),
-                    rs.getTimestamp("updatedAt").toLocalDateTime()
+                    rs.getTimestamp("created_at").toLocalDateTime(),
+                    rs.getTimestamp("updated_at").toLocalDateTime()
             );
         });
 

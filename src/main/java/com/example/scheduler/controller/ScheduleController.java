@@ -37,9 +37,9 @@ public class ScheduleController {
     @GetMapping
     public ResponseEntity<List<ScheduleResponseDto>> findByUpdatedAtRangeAndWriter(
         @RequestParam("updatedAt") @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate updatedAt,
-        @RequestParam("writer") String writer
+        @RequestParam("userId") Long userId
     ){
-        List<ScheduleResponseDto> scheduleResponseDtos = scheduleService.findByUpdatedAtRangeAndWriter(updatedAt, writer);
+        List<ScheduleResponseDto> scheduleResponseDtos = scheduleService.findByUpdatedAtRangeAndWriter(updatedAt, userId);
 
         return ResponseEntity.ok(scheduleResponseDtos);
     }

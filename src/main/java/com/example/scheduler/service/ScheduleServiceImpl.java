@@ -15,7 +15,11 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.util.Comparator;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class ScheduleServiceImpl implements ScheduleService {
@@ -49,11 +53,6 @@ public class ScheduleServiceImpl implements ScheduleService {
     }
 
     @Override
-    public List<ScheduleResponseDto> findByUpdatedAtRangeAndWriter(LocalDate updatedAt, String writer) {
-        return null;
-    }
-
-    @Override
     public ScheduleResponseDto findScheduleById(Long id) {
         return null;
     }
@@ -63,26 +62,44 @@ public class ScheduleServiceImpl implements ScheduleService {
         return null;
     }
 
-//    @Override
-//    public List<ScheduleResponseDto> findByUpdatedAtRangeAndWriter(LocalDate updatedAt, String writer) {
-//        LocalDateTime startOfDay = updatedAt.atStartOfDay();
-//        LocalDateTime endOfDay = updatedAt.atTime(LocalTime.MAX);
-//
-//        List<Schedule> schedules = scheduleRepository.findByUpdatedAtRangeAndWriter(startOfDay, endOfDay, writer);
-//
-//        if(schedules.isEmpty()) throw new ResponseStatusException(HttpStatus.NOT_FOUND, "schedules not found");
-//
-//        return schedules.stream()
-//                .sorted(Comparator.comparing(Schedule::getUpdatedAt).reversed())
-//                .map(schedule -> new ScheduleResponseDto(
-//                        schedule.getId(),
-//                        schedule.getUserId(),
-//                        schedule.getTodo(),
-//                        schedule.getCreatedAt(),
-//                        schedule.getUpdatedAt()
-//                ))
-//                .collect(Collectors.toList());
-//    }
+    @Override
+    public List<ScheduleResponseDto> findByUpdatedAtRangeAndWriter(LocalDate updatedAt, Long userId) {
+        LocalDateTime startOfDay = updatedAt.atStartOfDay();
+        LocalDateTime endOfDay = updatedAt.atTime(LocalTime.MAX);
+
+        logger.info("Fetching schedules for date range: {} to {} and userId: {}", startOfDay, endOfDay, userId);
+
+        List<Schedule> schedules = scheduleRepository.findByUpdatedAtRangeAndWriter(startOfDay, endOfDay, userId);
+
+        if(schedules.isEmpty()) {
+            logger.warn("No schedule found for userId: {}", userId);
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "schedules not found");
+        }
+
+        return schedules.stream()
+                .sorted(Comparator.comparing(Schedule::getUpdatedAt).reversed())
+                .map(schedule -> {
+                    logger.info("Found schedule: {}", schedule);
+                    // userId로 User 정보를 가져옴
+                    User user = userRepository.findUserById(schedule.getUserId());
+
+                    logger.info("Found user: {}", user);
+
+                    // UserResponseDto로 변환
+                    UserResponseDto userResponseDto = new UserResponseDto(user);
+
+                    // ScheduleResponseDto에 user 정보를 포함하여 반환
+                    return new ScheduleResponseDto(
+                            schedule.getId(),
+                            schedule.getUserId(),
+                            schedule.getTodo(),
+                            schedule.getCreatedAt(),
+                            schedule.getUpdatedAt(),
+                            userResponseDto
+                    );
+                })
+                .collect(Collectors.toList());
+    }
 
 //    @Override
 //    public ScheduleResponseDto findScheduleById(Long id) {
