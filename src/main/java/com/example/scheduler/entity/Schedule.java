@@ -9,15 +9,15 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 public class Schedule {
 
-    private long id;
-    private String writer;
+    private Long id;
+    private Long userId;
     private String todo;
     private String password;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 
-    public Schedule(String writer, String todo, String password){
-        this.writer = writer;
+    public Schedule(long userId, String todo, String password){
+        this.userId = userId;
         this.todo = todo;
         this.password = password;
         this.createdAt = LocalDateTime.now();
