@@ -39,15 +39,16 @@ public class JdbcTemplateScheduleRepository implements ScheduleRepository {
         jdbcInsert.withTableName("schedule").usingGeneratedKeyColumns("id");
 
         Map<String, Object> parameters = new HashMap<>();
-        parameters.put("writer", schedule.getWriter());
+        parameters.put("user_id", schedule.getUserId());
         parameters.put("todo", schedule.getTodo());
         parameters.put("password", schedule.getPassword());
-        parameters.put("createdAt", schedule.getCreatedAt());
-        parameters.put("updatedAt", schedule.getUpdatedAt());
+        parameters.put("created_at", schedule.getCreatedAt());
+        parameters.put("updated_at", schedule.getUpdatedAt());
 
         Number key = jdbcInsert.executeAndReturnKey(new MapSqlParameterSource(parameters));
+        schedule.setId(key.longValue());
 
-        ScheduleResponseDto scheduleResponseDto = new ScheduleResponseDto(key.longValue(), schedule.getWriter(), schedule.getTodo(), schedule.getCreatedAt(), schedule.getUpdatedAt());
+        ScheduleResponseDto scheduleResponseDto = new ScheduleResponseDto(key.longValue(), schedule.getUserId(), schedule.getTodo(), schedule.getCreatedAt(), schedule.getUpdatedAt());
 
         return scheduleResponseDto;
     }
@@ -59,7 +60,7 @@ public class JdbcTemplateScheduleRepository implements ScheduleRepository {
         return jdbcTemplate.query(sql, new Object[]{startOfDay, endOfDay, writer}, (rs, rowNum) -> {
             return new Schedule(
                     rs.getLong("id"),
-                    rs.getString("writer"),
+                    rs.getLong("writer"),
                     rs.getString("todo"),
                     rs.getString("password"),
                     rs.getTimestamp("createdAt").toLocalDateTime(),
@@ -111,7 +112,7 @@ public class JdbcTemplateScheduleRepository implements ScheduleRepository {
             public Schedule mapRow(ResultSet rs, int rowNum) throws SQLException{
                 return new Schedule(
                         rs.getLong("id"),
-                        rs.getString("writer"),
+                        rs.getLong("writer"),
                         rs.getString("todo"),
                         rs.getString("password"),
                         rs.getTimestamp("createdAt").toLocalDateTime(),

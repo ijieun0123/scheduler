@@ -52,13 +52,13 @@ public class ScheduleController {
     }
 
     // 스케줄 단건 수정
-    @PatchMapping("/{id}")
-    public ResponseEntity<ScheduleResponseDto> updateSchedule(
-            @PathVariable Long id,
-            @RequestBody ScheduleRequestDto dto
-    ){
-        return new ResponseEntity<>(scheduleService.updateSchedule(id, dto.getPassword(), dto.getTodo(), dto.getWriter()), HttpStatus.OK);
-    }
+//    @PatchMapping("/{id}")
+//    public ResponseEntity<ScheduleResponseDto> updateSchedule(
+//            @PathVariable Long id,
+//            @RequestBody ScheduleRequestDto dto
+//    ){
+//        return new ResponseEntity<>(scheduleService.updateSchedule(id, dto.getPassword(), dto.getTodo(), dto.getUserId()), HttpStatus.OK);
+//    }
 
     // 스케줄 단건 삭제
     @DeleteMapping("/{id}")

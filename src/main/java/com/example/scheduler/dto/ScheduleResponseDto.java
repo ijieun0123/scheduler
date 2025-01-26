@@ -11,16 +11,26 @@ import java.time.LocalDateTime;
 public class ScheduleResponseDto {
 
     private Long id;
-    private String writer;
+    private Long userId;
     private String todo;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
+    private UserResponseDto user;
 
-    public ScheduleResponseDto(Schedule schedule){
+    public ScheduleResponseDto(Schedule schedule, UserResponseDto userResponseDto){
         this.id = schedule.getId();
-        this.writer = schedule.getWriter();
+        this.userId = schedule.getUserId();
         this.todo = schedule.getTodo();
         this.createdAt = schedule.getCreatedAt();
         this.updatedAt = schedule.getUpdatedAt();
+        this.user = userResponseDto;
+    }
+
+    public ScheduleResponseDto(long id, Long userId, String todo, LocalDateTime createdAt, LocalDateTime updatedAt) {
+        this.id = id;
+        this.userId = userId;
+        this.todo = todo;
+        this.createdAt = createdAt;
+        this.updatedAt = updatedAt;
     }
 }
