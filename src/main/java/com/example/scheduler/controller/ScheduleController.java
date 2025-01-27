@@ -37,9 +37,9 @@ public class ScheduleController {
     @GetMapping
     public ResponseEntity<List<ScheduleResponseDto>> findByUpdatedAtRangeAndWriter(
         @RequestParam("updatedAt") @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate updatedAt,
-        @RequestParam("writer") String writer
+        @RequestParam("userId") Long userId
     ){
-        List<ScheduleResponseDto> scheduleResponseDtos = scheduleService.findByUpdatedAtRangeAndWriter(updatedAt, writer);
+        List<ScheduleResponseDto> scheduleResponseDtos = scheduleService.findByUpdatedAtRangeAndWriter(updatedAt, userId);
 
         return ResponseEntity.ok(scheduleResponseDtos);
     }
@@ -57,7 +57,7 @@ public class ScheduleController {
             @PathVariable Long id,
             @RequestBody ScheduleRequestDto dto
     ){
-        return new ResponseEntity<>(scheduleService.updateSchedule(id, dto.getPassword(), dto.getTodo(), dto.getWriter()), HttpStatus.OK);
+        return new ResponseEntity<>(scheduleService.updateSchedule(id, dto.getPassword(), dto.getTodo(), dto.getUser().getName()), HttpStatus.OK);
     }
 
     // 스케줄 단건 삭제

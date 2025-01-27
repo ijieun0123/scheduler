@@ -8,20 +8,19 @@ import java.time.LocalDateTime;
 
 @Getter
 @AllArgsConstructor
-public class Schedule {
+public class User {
 
     @Setter
     private Long id;
-    private Long userId;
-    private String todo;
-    private String password;
+    @Setter
+    private String name;
+    private String email;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 
-    public Schedule(Long userId, String todo, String password){
-        this.userId = userId;
-        this.todo = todo;
-        this.password = password;
+    public User(String name, String email) {
+        this.name = name;
+        this.email = email;
         this.createdAt = LocalDateTime.now();
         this.updatedAt = LocalDateTime.now();
     }

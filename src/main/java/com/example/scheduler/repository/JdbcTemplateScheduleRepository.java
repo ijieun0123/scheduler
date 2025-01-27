@@ -2,6 +2,7 @@ package com.example.scheduler.repository;
 
 import com.example.scheduler.dto.ScheduleResponseDto;
 import com.example.scheduler.entity.Schedule;
+import com.example.scheduler.entity.User;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
@@ -10,6 +11,7 @@ import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
 import javax.sql.DataSource;
@@ -27,9 +29,11 @@ public class JdbcTemplateScheduleRepository implements ScheduleRepository {
     private static final Logger logger = LoggerFactory.getLogger(JdbcTemplateScheduleRepository.class);
 
     private final JdbcTemplate jdbcTemplate;
+    private final UserRepository userRepository;
 
-    public JdbcTemplateScheduleRepository(DataSource dataSource){
+    public JdbcTemplateScheduleRepository(DataSource dataSource, UserRepository userRepository){
         this.jdbcTemplate = new JdbcTemplate(dataSource);
+        this.userRepository = userRepository;
     }
 
     @Override
@@ -39,31 +43,33 @@ public class JdbcTemplateScheduleRepository implements ScheduleRepository {
         jdbcInsert.withTableName("schedule").usingGeneratedKeyColumns("id");
 
         Map<String, Object> parameters = new HashMap<>();
-        parameters.put("writer", schedule.getWriter());
+        parameters.put("user_id", schedule.getUserId());
         parameters.put("todo", schedule.getTodo());
         parameters.put("password", schedule.getPassword());
-        parameters.put("createdAt", schedule.getCreatedAt());
-        parameters.put("updatedAt", schedule.getUpdatedAt());
+        parameters.put("created_at", schedule.getCreatedAt());
+        parameters.put("updated_at", schedule.getUpdatedAt());
 
         Number key = jdbcInsert.executeAndReturnKey(new MapSqlParameterSource(parameters));
 
-        ScheduleResponseDto scheduleResponseDto = new ScheduleResponseDto(key.longValue(), schedule.getWriter(), schedule.getTodo(), schedule.getCreatedAt(), schedule.getUpdatedAt());
+        schedule.setId(key.longValue());
+
+        ScheduleResponseDto scheduleResponseDto = new ScheduleResponseDto(key.longValue(), schedule.getUserId(), schedule.getTodo(), schedule.getCreatedAt(), schedule.getUpdatedAt());
 
         return scheduleResponseDto;
     }
 
     @Override
-    public List<Schedule> findByUpdatedAtRangeAndWriter(LocalDateTime startOfDay, LocalDateTime endOfDay, String writer) {
-        String sql = "SELECT * FROM schedule WHERE updatedAt BETWEEN ? AND ? AND writer = ?";
+    public List<Schedule> findByUpdatedAtRangeAndWriter(LocalDateTime startOfDay, LocalDateTime endOfDay, Long userId) {
+        String sql = "SELECT * FROM schedule WHERE updated_at BETWEEN ? AND ? AND user_id = ?";
 
-        return jdbcTemplate.query(sql, new Object[]{startOfDay, endOfDay, writer}, (rs, rowNum) -> {
+        return jdbcTemplate.query(sql, new Object[]{startOfDay, endOfDay, userId}, (rs, rowNum) -> {
             return new Schedule(
                     rs.getLong("id"),
-                    rs.getString("writer"),
+                    rs.getLong("user_id"),
                     rs.getString("todo"),
                     rs.getString("password"),
-                    rs.getTimestamp("createdAt").toLocalDateTime(),
-                    rs.getTimestamp("updatedAt").toLocalDateTime()
+                    rs.getTimestamp("created_at").toLocalDateTime(),
+                    rs.getTimestamp("updated_at").toLocalDateTime()
             );
         });
 
@@ -87,22 +93,30 @@ public class JdbcTemplateScheduleRepository implements ScheduleRepository {
         return result.stream().findAny().orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Does not exists id = " + id));
     }
 
+    @Transactional
     @Override
-    public int updateSchedule(Long id, String password, String todo, String writer) {
-        String sql = "update schedule SET todo = ?, writer = ?, updatedAt = NOW() where id = ?";
+    public int updateSchedule(Long id, String todo, User user) {
+        String sql = "update schedule SET todo = ?, user_id = ?, updated_at = NOW() where id = ?";
 
-        int updateRow = jdbcTemplate.update(sql, todo, writer, id);
+        int updateRow = jdbcTemplate.update(sql, todo, user.getId(), id);
 
         return updateRow;
     }
 
+    @Transactional
     @Override
-    public int deleteSchedule(Long id) {
-        String sql = "delete from schedule where id = ?";
+    public int deleteScheduleAndUser(Long scheduleId) {
+        Long userId = userRepository.findUserIdByScheduleId(scheduleId);
 
-        int updateRow = jdbcTemplate.update(sql, id);
+        if(userId != null){
+            String deleteScheduleSql = "DELETE FROM schedule WHERE id = ?";
+            jdbcTemplate.update(deleteScheduleSql, scheduleId);
 
-        return updateRow;
+            String deleteUserSql = "DELETE FROM user WHERE id = ?";
+            jdbcTemplate.update(deleteUserSql, userId);
+        }
+
+        return 1;
     }
 
     private RowMapper<Schedule> scheduleRowMapperV2(){
@@ -111,11 +125,11 @@ public class JdbcTemplateScheduleRepository implements ScheduleRepository {
             public Schedule mapRow(ResultSet rs, int rowNum) throws SQLException{
                 return new Schedule(
                         rs.getLong("id"),
-                        rs.getString("writer"),
+                        rs.getLong("user_id"),
                         rs.getString("todo"),
                         rs.getString("password"),
-                        rs.getTimestamp("createdAt").toLocalDateTime(),
-                        rs.getTimestamp("updatedAt").toLocalDateTime()
+                        rs.getTimestamp("created_at").toLocalDateTime(),
+                        rs.getTimestamp("updated_at").toLocalDateTime()
                 );
             }
         };
