@@ -1,6 +1,5 @@
 package com.example.scheduler.repository;
 
-import com.example.scheduler.dto.UserResponseDto;
 import com.example.scheduler.entity.User;
 import org.springframework.http.HttpStatus;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -23,7 +22,7 @@ public class JdbcTemplateUserRepository implements UserRepository{
         this.jdbcTemplate = new JdbcTemplate(dataSource);
     }
 
-    public UserResponseDto saveUser(User user){
+    public Long saveUser(User user){
         SimpleJdbcInsert jdbcInsert = new SimpleJdbcInsert(jdbcTemplate);
         jdbcInsert.withTableName("user").usingGeneratedKeyColumns("id");
 
@@ -34,11 +33,9 @@ public class JdbcTemplateUserRepository implements UserRepository{
         parameters.put("updated_at", user.getUpdatedAt());
 
         Number key = jdbcInsert.executeAndReturnKey(new MapSqlParameterSource(parameters));
-        user.setId(key.longValue());
+//        user.setId(key.longValue());
 
-        UserResponseDto userResponseDto = new UserResponseDto(key.longValue(), user.getName(), user.getEmail(), user.getCreatedAt(), user.getUpdatedAt());
-
-        return userResponseDto;
+        return key.longValue();
     }
 
     public User findUserById(Long userId){
@@ -61,6 +58,15 @@ public class JdbcTemplateUserRepository implements UserRepository{
         return users.get(0);
     }
 
+    @Override
+    public Long findUserIdByEmail(String email) {
+        String sql = "SELECT id FROM user WHERE email = ?";
+
+        Long userId = jdbcTemplate.queryForObject(sql, Long.class, email);
+
+        return userId;
+    }
+
     public void updateUser(User user){
         String sql = "UPDATE user SET name = ?, updated_at = NOW() where id = ?";
 
@@ -76,5 +82,13 @@ public class JdbcTemplateUserRepository implements UserRepository{
         if(userId == null) throw new ResponseStatusException(HttpStatus.NOT_FOUND, "schedule with id " + id + " not found.");
 
         return userId;
+    }
+
+    @Override
+    public boolean existsByEmail(String email) {
+        String sql = "SELECT COUNT(*) FROM user WHERE email = ?";
+        Integer count = jdbcTemplate.queryForObject(sql, Integer.class, email);
+
+        return count != null && count > 0;
     }
 }

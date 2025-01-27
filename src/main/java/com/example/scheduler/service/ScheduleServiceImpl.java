@@ -9,7 +9,6 @@ import com.example.scheduler.repository.ScheduleRepository;
 import com.example.scheduler.repository.UserRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.dao.DuplicateKeyException;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
@@ -36,17 +35,26 @@ public class ScheduleServiceImpl implements ScheduleService {
 
     public ScheduleResponseDto saveSchedule(ScheduleRequestDto scheduleRequestDto) {
 
-        User user = new User(scheduleRequestDto.getUser().getName(), scheduleRequestDto.getUser().getEmail());
+        Long userId;
 
-        UserResponseDto userResponseDto;
+        // 유저 이메일이 기존에 존재하는지 확인
+        String email = scheduleRequestDto.getUser().getEmail();
+        if(userRepository.existsByEmail(email)){
+            // 기존 userId 와 schedule 저장
+            userId = userRepository.findUserIdByEmail(email);
 
-        try {
-            userResponseDto = userRepository.saveUser(user);
-        } catch (DuplicateKeyException e) {
-            throw new IllegalArgumentException("Email already exists : " + scheduleRequestDto.getUser().getEmail());
+        } else {
+            // 새로운 userId 와 schedule 저장
+            User user = new User(scheduleRequestDto.getUser().getName(), scheduleRequestDto.getUser().getEmail());
+
+            userId = userRepository.saveUser(user);
         }
 
-        Schedule schedule = new Schedule(user.getId(), scheduleRequestDto.getTodo(), scheduleRequestDto.getPassword());
+        User user = new User(scheduleRequestDto.getUser().getName(), scheduleRequestDto.getUser().getEmail());
+
+        UserResponseDto userResponseDto = new UserResponseDto(userId, user.getName(), user.getEmail(), user.getCreatedAt(), user.getUpdatedAt());
+
+        Schedule schedule = new Schedule(userId, scheduleRequestDto.getTodo(), scheduleRequestDto.getPassword());
         scheduleRepository.saveSchedule(schedule);
 
         return new ScheduleResponseDto(schedule, userResponseDto);
