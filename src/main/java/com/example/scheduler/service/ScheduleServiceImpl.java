@@ -53,11 +53,6 @@ public class ScheduleServiceImpl implements ScheduleService {
     }
 
     @Override
-    public ScheduleResponseDto updateSchedule(Long id, String password, String todo, Long writer) {
-        return null;
-    }
-
-    @Override
     public List<ScheduleResponseDto> findByUpdatedAtRangeAndWriter(LocalDate updatedAt, Long userId) {
         LocalDateTime startOfDay = updatedAt.atStartOfDay();
         LocalDateTime endOfDay = updatedAt.atTime(LocalTime.MAX);
@@ -104,29 +99,39 @@ public class ScheduleServiceImpl implements ScheduleService {
         return new ScheduleResponseDto(schedule, userResponseDto);
     }
 
-//    @Override
-//    public ScheduleResponseDto updateSchedule(Long id, String password, String todo, String writer) {
-//
-//        String storedPassword = scheduleRepository.findScheduleByIdOrElseThrow(id).getPassword();
-//
-//        if(!password.equals(storedPassword)){
-//            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "The password is wrong.");
-//        }
-//
-//        if(todo == null || writer == null){
-//            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "The todo and writer are required values.");
-//        }
-//
-//        int updateRow = scheduleRepository.updateSchedule(id, password, todo, writer);
-//
-//        if(updateRow == 0){
-//            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Does not exist id = " + id);
-//        }
-//
-//        Schedule schedule = scheduleRepository.findScheduleByIdOrElseThrow(id);
-//
-//        return new ScheduleResponseDto(schedule);
-//    }
+    @Override
+    public ScheduleResponseDto updateSchedule(Long id, String password, String todo, String name) {
+
+        // 유효성 검사
+        if (password == null || todo == null || name == null) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "The password, todo, userId, and name are required values.");
+        }
+
+        String storedPassword = scheduleRepository.findScheduleByIdOrElseThrow(id).getPassword();
+
+        if(!password.equals(storedPassword)){
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "The password is wrong.");
+        }
+
+        Long userId = userRepository.findUserIdByScheduleId(id);
+        User user = userRepository.findUserById(userId);
+
+        if(user == null) throw new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found for id = " + userId);
+
+        user.setName(name);
+        userRepository.updateUser(user);
+
+        int updateRow = scheduleRepository.updateSchedule(id, todo, user);
+
+        if(updateRow == 0){
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Does not exist id = " + id);
+        }
+
+        Schedule schedule = scheduleRepository.findScheduleByIdOrElseThrow(id);
+        UserResponseDto userResponseDto = new UserResponseDto(user);
+
+        return new ScheduleResponseDto(schedule, userResponseDto);
+    }
 
     @Override
     public void deleteSchedule(Long id, String password) {

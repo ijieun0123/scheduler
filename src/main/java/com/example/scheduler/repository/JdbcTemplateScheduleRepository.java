@@ -2,6 +2,7 @@ package com.example.scheduler.repository;
 
 import com.example.scheduler.dto.ScheduleResponseDto;
 import com.example.scheduler.entity.Schedule;
+import com.example.scheduler.entity.User;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
@@ -92,10 +93,10 @@ public class JdbcTemplateScheduleRepository implements ScheduleRepository {
     }
 
     @Override
-    public int updateSchedule(Long id, String password, String todo, String writer) {
-        String sql = "update schedule SET todo = ?, writer = ?, updatedAt = NOW() where id = ?";
+    public int updateSchedule(Long id, String todo, User user) {
+        String sql = "update schedule SET todo = ?, user_id = ?, updated_at = NOW() where id = ?";
 
-        int updateRow = jdbcTemplate.update(sql, todo, writer, id);
+        int updateRow = jdbcTemplate.update(sql, todo, user.getId(), id);
 
         return updateRow;
     }

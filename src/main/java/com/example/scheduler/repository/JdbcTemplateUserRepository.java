@@ -60,4 +60,21 @@ public class JdbcTemplateUserRepository implements UserRepository{
 
         return users.get(0);
     }
+
+    public void updateUser(User user){
+        String sql = "UPDATE user SET name = ?, updated_at = NOW() where id = ?";
+
+        jdbcTemplate.update(sql, user.getName(), user.getId());
+    }
+
+    @Override
+    public Long findUserIdByScheduleId(Long id) {
+        String sql = "SELECT user_id FROM schedule WHERE id = ?";
+
+        Long userId = jdbcTemplate.queryForObject(sql, Long.class, id);
+
+        if(userId == null) throw new ResponseStatusException(HttpStatus.NOT_FOUND, "schedule with id " + id + " not found.");
+
+        return userId;
+    }
 }

@@ -10,4 +10,8 @@ public interface UserRepository {
     UserResponseDto saveUser(User user);
 
     User findUserById(Long userId);
+
+    void updateUser(User user);
+
+    Long findUserIdByScheduleId(Long id);
 }

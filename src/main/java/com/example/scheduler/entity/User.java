@@ -12,6 +12,7 @@ public class User {
 
     @Setter
     private Long id;
+    @Setter
     private String name;
     private String email;
     private LocalDateTime createdAt;
