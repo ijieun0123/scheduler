@@ -16,14 +16,10 @@ public class UserResponseDto {
     private LocalDateTime updatedAt;
 
     public UserResponseDto(User user){
-        if(user != null){
-            this.id = user.getId();
-            this.name = user.getName();
-            this.email = user.getEmail();
-            this.createdAt = user.getCreatedAt();
-            this.updatedAt = user.getUpdatedAt();
-        } else{
-            throw new IllegalArgumentException("User cannot be null");
-        }
+        this.id = user.getId();
+        this.name = user.getName();
+        this.email = user.getEmail();
+        this.createdAt = user.getCreatedAt();
+        this.updatedAt = user.getUpdatedAt();
     }
 }

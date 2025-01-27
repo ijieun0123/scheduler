@@ -115,11 +115,11 @@ public class JdbcTemplateScheduleRepository implements ScheduleRepository {
             public Schedule mapRow(ResultSet rs, int rowNum) throws SQLException{
                 return new Schedule(
                         rs.getLong("id"),
-                        rs.getLong("writer"),
+                        rs.getLong("user_id"),
                         rs.getString("todo"),
                         rs.getString("password"),
-                        rs.getTimestamp("createdAt").toLocalDateTime(),
-                        rs.getTimestamp("updatedAt").toLocalDateTime()
+                        rs.getTimestamp("created_at").toLocalDateTime(),
+                        rs.getTimestamp("updated_at").toLocalDateTime()
                 );
             }
         };
