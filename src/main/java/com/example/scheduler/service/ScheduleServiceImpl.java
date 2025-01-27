@@ -83,13 +83,13 @@ public class ScheduleServiceImpl implements ScheduleService {
                     // userId로 User 정보를 가져옴
                     User user = userRepository.findUserById(schedule.getUserId());
 
-                    logger.info("Found user: {}", user);
-
                     // UserResponseDto로 변환
                     UserResponseDto userResponseDto = new UserResponseDto(user);
 
+                    logger.info("Created UserResponseDto: {}", userResponseDto);
+
                     // ScheduleResponseDto에 user 정보를 포함하여 반환
-                    return new ScheduleResponseDto(
+                    ScheduleResponseDto scheduleResponseDto = new ScheduleResponseDto(
                             schedule.getId(),
                             schedule.getUserId(),
                             schedule.getTodo(),
@@ -97,6 +97,18 @@ public class ScheduleServiceImpl implements ScheduleService {
                             schedule.getUpdatedAt(),
                             userResponseDto
                     );
+
+                    logger.info("Created ScheduleResponseDto: {}", scheduleResponseDto);
+
+                    logger.info("UserResponseDto details: id={}, name={}, email={}, createdAt={}, updatedAt={}",
+                            userResponseDto.getId(),
+                            userResponseDto.getName(),
+                            userResponseDto.getEmail(),
+                            userResponseDto.getCreatedAt(),
+                            userResponseDto.getUpdatedAt()
+                    );
+
+                    return scheduleResponseDto;
                 })
                 .collect(Collectors.toList());
     }

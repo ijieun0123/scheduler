@@ -24,6 +24,4 @@ public class User {
         this.updatedAt = LocalDateTime.now();
     }
 
-    public User(long id, String name, String email, LocalDateTime createdAt, LocalDateTime updatedAt) {
-    }
 }

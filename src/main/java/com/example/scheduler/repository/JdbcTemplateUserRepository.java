@@ -44,7 +44,7 @@ public class JdbcTemplateUserRepository implements UserRepository{
     public User findUserById(Long userId){
         String sql = "SELECT * FROM user WHERE id = ?";
 
-        List<User> users = jdbcTemplate.query(sql, new Object[]{userId}, (rs, rowNum) -> {
+        List<User> users = jdbcTemplate.query(sql, (rs, rowNum) -> {
             return new User(
                     rs.getLong("id"),
                     rs.getString("name"),
@@ -52,7 +52,7 @@ public class JdbcTemplateUserRepository implements UserRepository{
                     rs.getTimestamp("created_at").toLocalDateTime(),
                     rs.getTimestamp("updated_at").toLocalDateTime()
             );
-        });
+        }, userId);
 
         if(users.isEmpty()){
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found");
