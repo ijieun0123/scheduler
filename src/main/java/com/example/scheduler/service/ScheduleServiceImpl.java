@@ -136,11 +136,13 @@ public class ScheduleServiceImpl implements ScheduleService {
     @Override
     public void deleteSchedule(Long id, String password) {
 
+        if(password == null) throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "The password is required value.");
+
         String storedPassword = scheduleRepository.findScheduleByIdOrElseThrow(id).getPassword();
 
         if(!password.equals(storedPassword)) throw new ResponseStatusException(HttpStatus.FORBIDDEN, "The password is wrong.");
 
-        int deleteRow = scheduleRepository.deleteSchedule(id);
+        int deleteRow = scheduleRepository.deleteScheduleAndUser(id);
 
         if(deleteRow == 0){
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Does not exist id = " + id);

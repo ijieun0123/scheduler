@@ -11,6 +11,7 @@ import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
 import javax.sql.DataSource;
@@ -28,9 +29,11 @@ public class JdbcTemplateScheduleRepository implements ScheduleRepository {
     private static final Logger logger = LoggerFactory.getLogger(JdbcTemplateScheduleRepository.class);
 
     private final JdbcTemplate jdbcTemplate;
+    private final UserRepository userRepository;
 
-    public JdbcTemplateScheduleRepository(DataSource dataSource){
+    public JdbcTemplateScheduleRepository(DataSource dataSource, UserRepository userRepository){
         this.jdbcTemplate = new JdbcTemplate(dataSource);
+        this.userRepository = userRepository;
     }
 
     @Override
@@ -45,8 +48,6 @@ public class JdbcTemplateScheduleRepository implements ScheduleRepository {
         parameters.put("password", schedule.getPassword());
         parameters.put("created_at", schedule.getCreatedAt());
         parameters.put("updated_at", schedule.getUpdatedAt());
-
-        System.out.println("Parameters: " + parameters);
 
         Number key = jdbcInsert.executeAndReturnKey(new MapSqlParameterSource(parameters));
 
@@ -92,6 +93,7 @@ public class JdbcTemplateScheduleRepository implements ScheduleRepository {
         return result.stream().findAny().orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Does not exists id = " + id));
     }
 
+    @Transactional
     @Override
     public int updateSchedule(Long id, String todo, User user) {
         String sql = "update schedule SET todo = ?, user_id = ?, updated_at = NOW() where id = ?";
@@ -101,13 +103,20 @@ public class JdbcTemplateScheduleRepository implements ScheduleRepository {
         return updateRow;
     }
 
+    @Transactional
     @Override
-    public int deleteSchedule(Long id) {
-        String sql = "delete from schedule where id = ?";
+    public int deleteScheduleAndUser(Long scheduleId) {
+        Long userId = userRepository.findUserIdByScheduleId(scheduleId);
 
-        int updateRow = jdbcTemplate.update(sql, id);
+        if(userId != null){
+            String deleteScheduleSql = "DELETE FROM schedule WHERE id = ?";
+            jdbcTemplate.update(deleteScheduleSql, scheduleId);
 
-        return updateRow;
+            String deleteUserSql = "DELETE FROM user WHERE id = ?";
+            jdbcTemplate.update(deleteUserSql, userId);
+        }
+
+        return 1;
     }
 
     private RowMapper<Schedule> scheduleRowMapperV2(){
