@@ -10,7 +10,7 @@
 - **프레임워크:** Spring Boot 3
 - **데이터베이스:** MySQL
 - **빌드 툴:** Gradle
-- **라이브러리:** Spring JDBC, Lombok, Spring Web
+- **라이브러리:** Spring JDBC, Lombok, Spring Web, Validation
 
 ## ERD 설계
 ![Image](https://github.com/user-attachments/assets/e5dddfcf-69a2-4682-be85-df283cd42498)
