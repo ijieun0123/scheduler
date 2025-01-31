@@ -3,16 +3,15 @@ package com.example.scheduler.repository;
 import com.example.scheduler.dto.ScheduleResponseDto;
 import com.example.scheduler.entity.Schedule;
 import com.example.scheduler.entity.User;
+import com.example.scheduler.exception.NotFoundException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.http.HttpStatus;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.server.ResponseStatusException;
 
 import javax.sql.DataSource;
 import java.sql.ResultSet;
@@ -114,7 +113,11 @@ public class JdbcTemplateScheduleRepository implements ScheduleRepository {
 
         List<Schedule> result = jdbcTemplate.query(sql, scheduleRowMapperV2(), id);
 
-        return result.stream().findAny().orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Does not exists id = " + id));
+        if(result.isEmpty()){
+            throw new NotFoundException("Does not exist id = " + id);
+        }
+
+        return result.get(0);
     }
 
     @Transactional
