@@ -5,13 +5,14 @@ import com.example.scheduler.dto.ScheduleResponseDto;
 import com.example.scheduler.dto.UserResponseDto;
 import com.example.scheduler.entity.Schedule;
 import com.example.scheduler.entity.User;
+import com.example.scheduler.exception.BadRequestException;
+import com.example.scheduler.exception.ForbiddenException;
+import com.example.scheduler.exception.NotFoundException;
 import com.example.scheduler.repository.ScheduleRepository;
 import com.example.scheduler.repository.UserRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
-import org.springframework.web.server.ResponseStatusException;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -80,7 +81,7 @@ public class ScheduleServiceImpl implements ScheduleService {
         List<Schedule> schedules = scheduleRepository.findByUpdatedAtRangeAndWriter(startOfDay, endOfDay, userId);
 
         if(schedules.isEmpty()) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "schedules not found");
+            throw new NotFoundException("schedules not found");
         }
 
         return schedules.stream()
@@ -121,22 +122,23 @@ public class ScheduleServiceImpl implements ScheduleService {
 
     @Override
     public ScheduleResponseDto updateSchedule(Long id, String password, String todo, String name) {
-
         // 유효성 검사
         if (password == null || todo == null || name == null) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "The password, todo, userId, and name are required values.");
+            throw new BadRequestException("The password, todo, userId, and name are required values.");
         }
 
         String storedPassword = scheduleRepository.findScheduleByIdOrElseThrow(id).getPassword();
 
         if(!password.equals(storedPassword)){
-            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "The password is wrong.");
+            throw new ForbiddenException("The password is wrong.");
         }
 
         Long userId = userRepository.findUserIdByScheduleId(id);
         User user = userRepository.findUserById(userId);
 
-        if(user == null) throw new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found for id = " + userId);
+        if(user == null) {
+            throw new NotFoundException("User not found for id = " + userId);
+        }
 
         user.setName(name);
         userRepository.updateUser(user);
@@ -144,7 +146,7 @@ public class ScheduleServiceImpl implements ScheduleService {
         int updateRow = scheduleRepository.updateSchedule(id, todo, user);
 
         if(updateRow == 0){
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Does not exist id = " + id);
+            throw new NotFoundException("Does not exist id = " + id);
         }
 
         Schedule schedule = scheduleRepository.findScheduleByIdOrElseThrow(id);
@@ -156,16 +158,16 @@ public class ScheduleServiceImpl implements ScheduleService {
     @Override
     public void deleteSchedule(Long id, String password) {
 
-        if(password == null) throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "The password is required value.");
+        if(password == null) throw new BadRequestException("The password is required value.");
 
         String storedPassword = scheduleRepository.findScheduleByIdOrElseThrow(id).getPassword();
 
-        if(!password.equals(storedPassword)) throw new ResponseStatusException(HttpStatus.FORBIDDEN, "The password is wrong.");
+        if(!password.equals(storedPassword)) throw new ForbiddenException("The password is wrong.");
 
         int deleteRow = scheduleRepository.deleteScheduleAndUser(id);
 
         if(deleteRow == 0){
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Does not exist id = " + id);
+            throw new NotFoundException("Does not exist id = " + id);
         }
 
     }
