@@ -36,8 +36,8 @@ public class ScheduleController {
 
     // 스케줄 전체 조회
     @PostMapping("/list")
-    public List<ScheduleResponseDto> getSchedules(@RequestBody ScheduleRequestDto dto){
-        return scheduleService.getSchedules(dto);
+    public ResponseEntity<List<ScheduleResponseDto>> getSchedules(@RequestBody ScheduleRequestDto dto){
+        return new ResponseEntity<>(scheduleService.getSchedules(dto), HttpStatus.OK);
     }
 
     // 스케줄 다건 조회
