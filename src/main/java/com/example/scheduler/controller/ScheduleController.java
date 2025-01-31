@@ -2,8 +2,8 @@ package com.example.scheduler.controller;
 
 import com.example.scheduler.dto.ScheduleRequestDto;
 import com.example.scheduler.dto.ScheduleResponseDto;
-import com.example.scheduler.entity.Schedule;
 import com.example.scheduler.service.ScheduleService;
+import jakarta.validation.Valid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -28,7 +28,7 @@ public class ScheduleController {
 
     // 스케줄 생성
     @PostMapping
-    public ResponseEntity<ScheduleResponseDto> createSchedule(@RequestBody ScheduleRequestDto dto){
+    public ResponseEntity<ScheduleResponseDto> createSchedule(@RequestBody @Valid ScheduleRequestDto dto){
         ScheduleResponseDto scheduleResponseDto = scheduleService.saveSchedule(dto);
 
         return new ResponseEntity<>(scheduleResponseDto, HttpStatus.CREATED);

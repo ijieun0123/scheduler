@@ -5,7 +5,9 @@ import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.HttpRequestMethodNotSupportedException;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
@@ -88,6 +90,18 @@ public class GlobalExceptionHandler {
         errorResponse.put("message", "Invalid input format or data type");
 
         return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    public ResponseEntity<Object> handleMethodArgumentNotValidException(MethodArgumentNotValidException e){
+        BindingResult bindingResult = e.getBindingResult();
+        StringBuilder errors = new StringBuilder("Validation failed: ");
+        bindingResult.getAllErrors().forEach(error -> errors.append(error.getDefaultMessage()).append("; "));
+
+        Map<String, Object> errorResponse = new HashMap<>();
+        errorResponse.put("errorDetails", errors.toString());
+
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorResponse);
     }
 
     public ResponseEntity<Object> buildErrorResponse(HttpStatus status, String message){
