@@ -12,6 +12,8 @@ public interface ScheduleRepository {
 
     ScheduleResponseDto saveSchedule(Schedule schedule);
 
+    List<Schedule> findAll(int pageNum, int pageSize);
+
     List<Schedule> findByUpdatedAtRangeAndWriter(LocalDateTime startOfDay, LocalDateTime endOfDay, Long userId);
 
     Optional<Schedule> findScheduleById(Long id);

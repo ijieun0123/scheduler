@@ -9,5 +9,7 @@ public class ScheduleRequestDto {
     private String todo;
     private String password;
     private Long userId;
+    private int pageNumber;
+    private int pageSize;
 
 }

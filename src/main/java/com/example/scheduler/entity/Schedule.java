@@ -26,4 +26,11 @@ public class Schedule {
         this.updatedAt = LocalDateTime.now();
     }
 
+    public Schedule(long id, long userId, String todo, LocalDateTime createdAt, LocalDateTime updatedAt) {
+        this.id = id;
+        this.userId = userId;
+        this.todo = todo;
+        this.createdAt = createdAt;
+        this.updatedAt = updatedAt;
+    }
 }

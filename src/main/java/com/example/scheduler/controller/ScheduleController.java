@@ -2,6 +2,7 @@ package com.example.scheduler.controller;
 
 import com.example.scheduler.dto.ScheduleRequestDto;
 import com.example.scheduler.dto.ScheduleResponseDto;
+import com.example.scheduler.entity.Schedule;
 import com.example.scheduler.service.ScheduleService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -34,6 +35,12 @@ public class ScheduleController {
     }
 
     // 스케줄 전체 조회
+    @PostMapping("/list")
+    public List<ScheduleResponseDto> getSchedules(@RequestBody ScheduleRequestDto dto){
+        return scheduleService.getSchedules(dto);
+    }
+
+    // 스케줄 다건 조회
     @GetMapping
     public ResponseEntity<List<ScheduleResponseDto>> findByUpdatedAtRangeAndWriter(
         @RequestParam("updatedAt") @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate updatedAt,
