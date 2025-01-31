@@ -61,6 +61,18 @@ public class ScheduleServiceImpl implements ScheduleService {
     }
 
     @Override
+    public List<ScheduleResponseDto> getSchedules(ScheduleRequestDto dto) {
+        List<Schedule> schedules = scheduleRepository.findAll(dto.getPageNumber(), dto.getPageSize());
+
+        return schedules.stream()
+                .map(schedule -> {
+                    User user = userRepository.findUserById(schedule.getUserId());
+                    UserResponseDto userResponseDto = new UserResponseDto(user);
+                    return new ScheduleResponseDto(schedule, userResponseDto);
+                }).collect(Collectors.toList());
+    }
+
+    @Override
     public List<ScheduleResponseDto> findByUpdatedAtRangeAndWriter(LocalDate updatedAt, Long userId) {
         LocalDateTime startOfDay = updatedAt.atStartOfDay();
         LocalDateTime endOfDay = updatedAt.atTime(LocalTime.MAX);

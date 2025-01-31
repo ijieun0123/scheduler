@@ -59,6 +59,30 @@ public class JdbcTemplateScheduleRepository implements ScheduleRepository {
     }
 
     @Override
+    public List<Schedule> findAll(int pageNum, int pageSize) {
+        int offset = (pageNum - 1) * pageSize;
+
+        String sql = """
+            SELECT s.id, s.user_id, s.todo, s.created_at, s.updated_at
+            FROM schedule s
+            ORDER BY s.updated_at DESC
+            LIMIT ?, ?        
+        """;
+
+        return jdbcTemplate.query(sql, new RowMapper<Schedule>() {
+            public Schedule mapRow(ResultSet rs, int rowNum) throws SQLException{
+                return new Schedule(
+                        rs.getLong("id"),
+                        rs.getLong("user_id"),
+                        rs.getString("todo"),
+                        rs.getTimestamp("created_at").toLocalDateTime(),
+                        rs.getTimestamp("updated_at").toLocalDateTime()
+                );
+            }
+        }, offset, pageSize);
+    }
+
+    @Override
     public List<Schedule> findByUpdatedAtRangeAndWriter(LocalDateTime startOfDay, LocalDateTime endOfDay, Long userId) {
         String sql = "SELECT * FROM schedule WHERE updated_at BETWEEN ? AND ? AND user_id = ?";
 

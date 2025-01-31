@@ -10,6 +10,8 @@ public interface ScheduleService {
 
     ScheduleResponseDto saveSchedule(ScheduleRequestDto dto);
 
+    List<ScheduleResponseDto> getSchedules(ScheduleRequestDto dto);
+
     List<ScheduleResponseDto> findByUpdatedAtRangeAndWriter(LocalDate updatedAt, Long userId);
 
     ScheduleResponseDto findScheduleById(Long id);
